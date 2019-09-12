@@ -17,7 +17,8 @@ siendo python2 la variable de entorno PATH de python 2.7.16 (pueden nombrarla co
 
 ## Docs
 
-La documentación de instalación de spyne (librería principal que gestiona el servidor y el cliente) la pueden encontrar [aquí](http://spyne.io/docs/2.11/#requirements](http://spyne.io/docs/2.11/#requirements)
+La documentación de instalación de spyne (librería principal que gestiona el servidor y el cliente) la pueden encontrar [aquí](http://spyne.io/docs/2.11/#requirements](http://spyne.io/docs/2.11/#requirements))
+
 y,
 [Documentación especifica para empezar a trabajar](http://spyne.io/docs/2.10/#library-documentation)
 
