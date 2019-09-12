@@ -15,7 +15,6 @@ class digitoVerificadorService(ServiceBase):
 
     @rpc(Unicode,Integer, _returns = Iterable(Unicode))
     def digitoVerificador(ctx,rut,times):
-        # yield 'Hola senor %s' % rut
         completeRut = rut.split('-')
         rutUsable = completeRut[0]
         if (len(rutUsable)<7):
@@ -44,21 +43,34 @@ class digitoVerificadorService(ServiceBase):
                     msg = 'El rut ingresado '+ rut +' es valido y tiene como digito veriicador 0'
                     yield msg
                 else:
-                    msg = 'El rut ingresado ' + rut + 'es valido y tiene como digito verificador ' + completeRut[1]
+                    msg = 'El rut ingresado ' + rut + ' es valido y tiene como digito verificador ' + completeRut[1]
                     yield msg
             else:
                 msg = 'El rut ingresado ' + rut + ' es invalido o el formato esta errado'
 
-# class nombrePropio(ServiceBase):
+class nombrePropioService(ServiceBase):
+    @rpc(Unicode,Unicode,Unicode,Unicode, _returns = Iterable(Unicode))
+    def nombrePropio(ctx,name,apellido_p,apellido_m,gender):
+        if gender=='M':
+            gender='Sr.'
+        elif gender=='F':
+            gender='Sra.'
+        nombreCompleto = gender + ' ' + name + ' ' + apellido_p + ' ' + apellido_m
+        msg = 'Hola ' + nombreCompleto.title()
+        yield msg
+
 
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, Integer, _returns=Iterable(Unicode))
     def say_hello(ctx, name,times):      
         for i in range(times):
             yield 'Hello, %s' % name
-
-
-application = Application([HelloWorldService,digitoVerificadorService],
+application = Application(
+    [
+        HelloWorldService,
+        digitoVerificadorService,
+        nombrePropioService
+    ],
     tns='spyne.examples.hello.soap',
     in_protocol=HttpRpc(),
     out_protocol=Soap11()
