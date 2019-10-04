@@ -9,12 +9,17 @@ from spyne.protocol.json import JsonDocument
 from spyne.server.wsgi import WsgiApplication
 from spyne.protocol.soap import Soap11
 from spyne.model.primitive import String
+from spyne.model.primitive import Boolean, Unicode, Integer
+from spyne.model.complex import ComplexModel
 
+class MyHeader(ComplexModel):
+   info = Unicode
 
 class digitoVerificadorService(ServiceBase):
+    __in_header__ = MyHeader
 
     @rpc(Unicode,Integer, _returns = Iterable(Unicode))
-    def digitoVerificador(ctx,rut,times):
+    def digito_verificador(ctx,rut,times):
         completeRut = rut.split('-')
         rutUsable = completeRut[0]
         if (len(rutUsable)<7):
@@ -49,13 +54,16 @@ class digitoVerificadorService(ServiceBase):
                 msg = 'El rut ingresado ' + rut + ' es invalido o el formato esta errado'
 
 class nombrePropioService(ServiceBase):
+    __in_header__ = MyHeader
+
     @rpc(Unicode,Unicode,Unicode,Unicode, _returns = Iterable(Unicode))
-    def nombrePropio(ctx,name,apellido_p,apellido_m,gender):
+    def nombre_propio(ctx,name,apellidop,apellidom,gender):
+
         if gender=='M':
             gender='Sr.'
         elif gender=='F':
             gender='Sra.'
-        nombreCompleto = gender + ' ' + name + ' ' + apellido_p + ' ' + apellido_m
+        nombreCompleto = gender + ' ' + name + ' ' + apellidop + ' ' + apellidom
         msg = 'Hola ' + nombreCompleto.title()
         yield msg
 
@@ -65,21 +73,18 @@ class HelloWorldService(ServiceBase):
     def say_hello(ctx, name,times):      
         for i in range(times):
             yield 'Hello, %s' % name
-application = Application(
-    [
+
+application = Application([
         HelloWorldService,
         digitoVerificadorService,
         nombrePropioService
     ],
-    tns='spyne.examples.hello.soap',
-    in_protocol=HttpRpc(),
+    tns='/',
+    in_protocol=Soap11(),
     out_protocol=Soap11()
 )
 
 if __name__ == '__main__':
-    # You can use any Wsgi server. Here, we chose
-    # Python's built-in wsgi server but you're not
-    # supposed to use it in production.
     from wsgiref.simple_server import make_server
     wsgi_app = WsgiApplication(application)
     server = make_server('0.0.0.0', 8000, wsgi_app)
