@@ -21,7 +21,8 @@ class digitoVerificadorService(ServiceBase):
     @rpc(Unicode, _returns = Iterable(Unicode))
     def digito_verificador(ctx,rut):
         completeRut = rut.split('-')
-        ValueDv = False 
+        ValueDv = False
+        validate = True
         rutUsable = completeRut[0]
         if (len(rutUsable)<7):
             error = 'Error: El rut ingresado '+ rut + ' no es valido'
@@ -30,33 +31,41 @@ class digitoVerificadorService(ServiceBase):
             suma = 0
             k=2
             rutInvertido = rutUsable[::-1]
-            for i in range(len(rutUsable)):
-                if (i<6):
-                    suma = suma + int(rutInvertido[i])*k
-                    k+=1
-                elif (i==6):
-                    k=2
-                    suma += int(rutInvertido[i])*k
-                else:
-                    k+=1
-                    suma += int(rutInvertido[i])*k
-            dv = (11-(suma%11))
-            if (completeRut[1] in (0,1,2,3,4,5,6,7,8,9,'1','2','3','4','5','6','7','8','9','K','k','0')):
-                ValueDv = True
-            if (completeRut[1]=='K' or completeRut[1]=='k'):
-                completeRut[1]=10
-            elif (completeRut[1]=='0' or completeRut[1]==0):
-                completeRut[1]=11
-            if (ValueDv == True):
-                if (dv == int(completeRut[1])):
-                    if (dv==10):
-                        msg = 'El rut ingresado '+ rut + ' es valido y tiene como digito verificador K'
-                        yield msg
-                    elif (dv==11):
-                        msg = 'El rut ingresado '+ rut +' es valido y tiene como digito veriicador 0'
-                        yield msg
+            for i in range(len(rutInvertido)):
+                if rutInvertido[i] not in (0,1,2,3,4,5,6,7,8,9,'1','2','3','4','5','6','7','8','9','0'):
+                    validate = False
+            if (validate==True):
+
+                for i in range(len(rutUsable)):
+                    if (i<6):
+                        suma = suma + int(rutInvertido[i])*k
+                        k+=1
+                    elif (i==6):
+                        k=2
+                        suma += int(rutInvertido[i])*k
                     else:
-                        msg = 'El rut ingresado ' + rut + ' es valido y tiene como digito verificador ' + str(completeRut[1])
+                        k+=1
+                        suma += int(rutInvertido[i])*k
+                dv = (11-(suma%11))
+                if (completeRut[1] in (0,1,2,3,4,5,6,7,8,9,'1','2','3','4','5','6','7','8','9','K','k','0')):
+                    ValueDv = True
+                if (completeRut[1]=='K' or completeRut[1]=='k'):
+                    completeRut[1]=10
+                elif (completeRut[1]=='0' or completeRut[1]==0):
+                    completeRut[1]=11
+                if (ValueDv == True):
+                    if (dv == int(completeRut[1])):
+                        if (dv==10):
+                            msg = 'El rut ingresado '+ rut + ' es valido y tiene como digito verificador K'
+                            yield msg
+                        elif (dv==11):
+                            msg = 'El rut ingresado '+ rut +' es valido y tiene como digito veriicador 0'
+                            yield msg
+                        else:
+                            msg = 'El rut ingresado ' + rut + ' es valido y tiene como digito verificador ' + str(completeRut[1])
+                            yield msg
+                    else:
+                        msg = 'El rut ingresado ' + rut +' es invalido o el formato esta errado'
                         yield msg
                 else:
                     msg = 'El rut ingresado ' + rut +' es invalido o el formato esta errado'
