@@ -79,14 +79,17 @@ class nombrePropioService(ServiceBase):
 
     @rpc(Unicode,Unicode,Unicode,Unicode, _returns = Iterable(Unicode))
     def nombre_propio(ctx,name,apellidop,apellidom,gender):
-
-        if gender=='M':
-            gender='Sr.'
-        elif gender=='F':
-            gender='Sra.'
-        nombreCompleto = gender + ' ' + name + ' ' + apellidop + ' ' + apellidom
-        msg = 'Hola ' + nombreCompleto.title()
-        yield msg
+        if (gender in ('M','m','f','F')):
+            if gender=='M' or gender=='m':
+                gender='Sr.'
+            elif gender=='F' or gender=='f':
+                gender='Sra.'
+            nombreCompleto = gender + ' ' + name + ' ' + apellidop + ' ' + apellidom
+            msg = 'Hola ' + nombreCompleto.title()
+            yield msg
+        else:
+            msg = 'El genero no coincide con lo permitido, ingrese (M,F,m,f)'
+            yield msg
 
 
 class HelloWorldService(ServiceBase):
