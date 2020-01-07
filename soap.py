@@ -14,6 +14,10 @@ from spyne.model.complex import ComplexModel
 
 class MyHeader(ComplexModel):
    info = Unicode
+class Validation(Unicode):
+    @staticmethod
+    def checkInput(inputString):
+        return any(char.isdigit() for char in inputString)
 
 class digitoVerificadorService(ServiceBase):
     __in_header__ = MyHeader
@@ -75,23 +79,37 @@ class digitoVerificadorService(ServiceBase):
                 yield msg
 
 class nombrePropioService(ServiceBase):
-    __in_header__ = MyHeader
-
+    __in_header__ = MyHeader    
+    ValidationClass = Validation
     @rpc(Unicode,Unicode,Unicode,Unicode, _returns = Iterable(Unicode))
     def nombre_propio(ctx,name,apellidop,apellidom,gender):
-        if (gender in ('M','m','f','F')):
-            if gender=='M' or gender=='m':
-                gender='Sr.'
-            elif gender=='F' or gender=='f':
-                gender='Sra.'
-            nombreCompleto = gender + ' ' + name + ' ' + apellidop + ' ' + apellidom
-            msg = 'Hola ' + nombreCompleto.title()
-            yield msg
+        validate=1
+        arrayInput = [
+            name,
+            apellidom,
+            apellidop,
+            gender
+        ]
+        for i in arrayInput:
+            if (Validation.checkInput(i)):
+                validate=0
+        if (validate==1):
+            if (gender in ('M','m','f','F')):
+                if gender=='M' or gender=='m':
+                    gender='Sr.'
+                elif gender=='F' or gender=='f':
+                    gender='Sra.'
+                nombreCompleto = gender + ' ' + name + ' ' + apellidop + ' ' + apellidom
+                msg = 'Hola ' + nombreCompleto.title()
+                yield msg
+            else:
+                msg = 'El genero no coincide con lo permitido, ingrese (M,F,m,f)'
+                yield msg
         else:
-            msg = 'El genero no coincide con lo permitido, ingrese (M,F,m,f)'
+            msg = 'No se permiten caracteres a excepcion de letras en los nombres'
             yield msg
-
-
+    # def checkInput(self,inputString):
+    #     return any(char.isdigit() for char in inputString)
 class HelloWorldService(ServiceBase):
     @rpc(Unicode, Integer, _returns=Iterable(Unicode))
     def say_hello(ctx, name,times):      
